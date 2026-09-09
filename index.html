@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>熊高级上岸吧</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            macaron: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            judy: {
+              light: '#E8F4F8',
+              main: '#89CFF0',
+              dark: '#5BA3C6',
+              accent: '#FF8FAB',
+              gold: '#FFD166',
+            }
+          },
+          fontFamily: {
+            cute: ['"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #fce7f3 50%, #e0f2fe 100%);
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    .phone-frame {
+      width: 420px;
+      height: 860px;
+      max-height: 96vh;
+      margin: auto;
+      background: #fff;
+      border-radius: 48px;
+      box-shadow: 0 25px 80px rgba(14, 165, 233, 0.18), inset 0 0 0 10px #fff;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      border: 4px solid rgba(137, 207, 240, 0.3);
+    }
+    .sidebar {
+      width: 56px;
+      background: linear-gradient(180deg, #E8F4F8 0%, #DBF0FA 100%);
+      display: flex;
+      flex-direction: column;
+      padding: 16px 4px 12px 4px;
+      gap: 4px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+    .avatar-ring {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #fff, #E8F4F8);
+      border: 2px solid #89CFF0;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 2px;
+      box-shadow: 0 4px 12px rgba(137,207,240,0.2);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .avatar-ring img { width: 36px; height: 36px; object-fit: cover; }
+    .app-name {
+      text-align: center; font-size: 9px; font-weight: 700;
+      color: #2C5F75; margin-bottom: 6px; flex-shrink: 0;
+      line-height: 1.5;
+    }
+    /* 折叠态 — 仅图标 */
+    .sidebar.collapsed { width: 56px; padding: 16px 4px 12px 4px; }
+    .sidebar.collapsed .avatar-ring { width: 36px; height: 36px; margin: 0 auto 2px; border-width: 2px; }
+    .sidebar.collapsed .avatar-ring img { width: 36px; height: 36px; }
+    .sidebar.collapsed .app-name { font-size: 9px; margin-bottom: 6px; }
+    .sidebar.collapsed .nav-group-title { display: none; }
+    .sidebar.collapsed .nav-item { justify-content: center; padding: 8px 4px; }
+    .sidebar.collapsed .nav-item span:last-child { display: none; }
+    .sidebar.collapsed .nav-icon { margin: 0; }
+    .nav-group-title {
+      font-size: 9px;
+      color: #7BA7BB;
+      padding: 6px 0 2px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 7px 4px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: #4A7C94;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      position: relative;
+      background: transparent;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-item:hover { background: rgba(137, 207, 240, 0.25); }
+    .nav-item.active {
+      background: linear-gradient(135deg, #89CFF0 0%, #5BA3C6 100%);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(137, 207, 240, 0.35);
+      transform: translateX(2px);
+    }
+    .nav-item.active .nav-icon {
+      box-shadow: 0 0 0 2px #fff;
+    }
+    .nav-item.dragging { opacity: 0.5; }
+    .nav-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(137,207,240,0.15);
+    }
+    .nav-icon img { width: 28px; height: 28px; object-fit: cover; }
+    .sidebar-bottom { margin-top: auto; padding-top: 8px; border-top: 1px solid rgba(137,207,240,0.2); }
+    .nav-icon-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: none; background: #fff; border-radius: 50%; box-shadow: 0 2px 5px rgba(137,207,240,0.15); cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .nav-icon-btn:hover { background: #E8F4F8; transform: scale(1.1); }
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #F6FBFD;
+      position: relative;
+    }
+    .topbar {
+      height: 64px;
+      padding: 16px 18px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(137,207,240,0.15);
+    }
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 20px 80px;
+      scrollbar-width: none;
+    }
+    .content-scroll::-webkit-scrollbar { display: none; }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #2C5F75;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-sub {
+      font-size: 13px;
+      color: #7BA7BB;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(137, 207, 240, 0.1);
+      border: 1px solid rgba(137, 207, 240, 0.12);
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2C5F75;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    /* 学习计划日历 */
+    .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 2px; }
+    .calendar-weekdays span { text-align: center; font-size: 9px; color: #7BA7BB; font-weight: 600; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .calendar-day {
+      min-height: 36px; border-radius: 6px; background: #FAFCFD; border: 1px solid rgba(137,207,240,0.12);
+      padding: 2px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column;
+    }
+    .calendar-day:hover { background: #F0F9FF; transform: translateY(-1px); }
+    .calendar-day.other-month { background: #F5F8FA; opacity: 0.65; }
+    .calendar-day.today { border-color: #89CFF0; background: #E8F7FD; box-shadow: 0 2px 8px rgba(137,207,240,0.15); }
+    .calendar-day.today .day-num { background: #89CFF0; color: #fff; }
+    .day-num { width: 14px; height: 14px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: #2C5F75; margin-bottom: 1px; }
+    .day-plans { display: flex; flex-direction: column; gap: 1px; flex: 1; overflow: hidden; }
+    .day-plan-chip { font-size: 7px; padding: 0px 2px; border-radius: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #2C5F75; background: rgba(137,207,240,0.18); line-height: 1.4; }
+    .day-plan-chip.done { opacity: 0.55; text-decoration: line-through; }
+    .day-more { font-size: 7px; color: #7BA7BB; text-align: right; margin-top: 0px; }
+    .btn-primary {
+      background: linear-gradient(135deg, #89CFF0 0%, #5BA3C6 100%);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(137, 207, 240, 0.3);
+      transition: transform 0.15s;
+    }
+    .btn-primary:active { transform: scale(0.96); }
+    .btn-ghost {
+      background: rgba(137, 207, 240, 0.15);
+      color: #2C5F75;
+      border: none;
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .progress-bar {
+      height: 10px;
+      background: #E8F4F8;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #89CFF0, #5BA3C6);
+      border-radius: 5px;
+      transition: width 0.4s ease;
+    }
+    .exam-card {
+      background: url('bg-countdown.jpg') center/cover no-repeat;
+      border-radius: 24px;
+      padding: 20px 16px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(137, 207, 240, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .exam-card::after, .exam-card::before { display: none; }
+    .exam-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(91,163,198,0.85) 0%, rgba(137,207,240,0.70) 100%);
+      border-radius: 24px;
+      z-index: 0;
+    }
+    .exam-card > *:not(.exam-card-overlay) {
+      position: relative;
+      z-index: 1;
+    }
+    .exam-card-left {
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+    .exam-card-right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+    }
+    .exam-card-right .days-num {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .exam-card-right .days-label {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #F6FBFD;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    .task-item.done { background: #E8F8F0; }
+    .task-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #89CFF0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+    .task-item.done .task-check { background: #89CFF0; border-color: #89CFF0; color: #fff; }
+    .task-text { flex: 1; font-size: 14px; color: #2C5F75; }
+    .task-item.done .task-text { text-decoration: line-through; color: #7BA7BB; }
+    .task-delete { width: 22px; height: 22px; border-radius: 50%; background: transparent; color: #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; transition: all 0.2s; flex-shrink: 0; }
+    .task-delete:hover { background: #FFE0E0; color: #E74C3C; }
+    .analysis-block-header .icon { width: 26px; height: 26px; border-radius: 8px; background: #E8F4F8; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+    /* 行测套卷美化 */
+    .exam-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .exam-stat-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      border: 1px solid rgba(137,207,240,0.15);
+      box-shadow: 0 3px 12px rgba(137,207,240,0.08);
+    }
+    .exam-stat-card .stat-num { font-size: 28px; font-weight: 800; color: #2C5F75; line-height: 1; }
+    .exam-stat-card .stat-label { font-size: 11px; color: #7BA7BB; margin-top: 4px; }
+    .exam-stat-card.accent .stat-num { color: #89CFF0; }
+    .exam-stat-card.gold .stat-num { color: #FFD166; }
+
+    .paper-card {
+      background: #fff;
+      border-radius: 22px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      box-shadow: 0 3px 14px rgba(137,207,240,0.08);
+      border: 1px solid rgba(137,207,240,0.1);
+    }
+    .paper-card-header {
+      padding: 14px 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .paper-card-header .paper-source { font-size: 15px; font-weight: 700; color: #2C5F75; }
+    .paper-card-header .paper-date { font-size: 11px; color: #7BA7BB; }
+    .paper-card-header .paper-score-badge {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .paper-score-high { color: #4CAF50; }
+    .paper-score-mid { color: #FFD166; }
+    .paper-score-low { color: #E57373; }
+
+    .paper-meta { padding: 0 16px 8px; display: flex; gap: 14px; font-size: 12px; color: #5B8FA8; }
+    .paper-meta span { display: flex; align-items: center; gap: 4px; }
+
+    .paper-sections { padding: 0 16px 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .paper-section-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #F0F9FF;
+      color: #5BA3C6;
+      border: 1px solid #C5E0F0;
+    }
+    .paper-section-pill .ps-correct { color: #4CAF50; font-weight: 700; }
+    .paper-section-pill .ps-total { color: #7BA7BB; }
+    .paper-section-pill .ps-time { color: #9BBFD1; font-size: 10px; }
+
+    .paper-note { margin: 0 16px 10px; padding: 10px 14px; background: #FFFDF5; border-left: 3px solid #FFD166; border-radius: 0 10px 10px 0; font-size: 12px; color: #5B8FA8; line-height: 1.6; }
+
+    .paper-actions { padding: 0 16px 12px; display: flex; gap: 6px; }
+    .answer-card-tag.gap { background: #FFF0F0; color: #E57373; }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 340px;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.92) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-header {
+      padding: 18px 20px 0;
+      font-size: 17px;
+      font-weight: 700;
+      color: #2C5F75;
+    }
+    .modal-body { padding: 16px 20px; overflow-y: auto; max-height: 60vh; }
+    .modal-footer {
+      padding: 12px 20px 18px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .essay-detail-overlay.show{display:flex}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media (max-width:480px){
+      .essay-detail-panel{max-width:calc(100% - 32px);max-height:calc(100vh - 40px);border-radius:24px}
+      .essay-detail-overlay{padding:48px 16px}
+      .essay-detail-header-title{max-width:220px}
+    }
+
+    .input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border: 1px solid #D1EEFB;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 10px;
+      background: #F6FBFD;
+      color: #2C5F75;
+    }
+    .input:focus { border-color: #89CFF0; box-shadow: 0 0 0 3px rgba(137,207,240,0.15); }
+    .input[type="date"], .input[type="time"] { -webkit-appearance: none; appearance: none; min-width: 0; font-family: inherit; }
+    .input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+    .label { font-size: 12px; color: #5B8FA8; margin-bottom: 4px; display: block; font-weight: 600; }
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .stat-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px 8px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(137,207,240,0.08);
+      border: 1px solid rgba(137,207,240,0.1);
+    }
+    .stat-num { font-size: 20px; font-weight: 700; color: #2C5F75; }
+    .stat-label { font-size: 11px; color: #7BA7BB; margin-top: 2px; }
+    .chart-wrap {
+      height: 180px;
+      position: relative;
+      margin-top: 10px;
+    }
+    .chart-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .chart-tab {
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #5B8FA8;
+      background: #F0F9FF;
+      cursor: pointer;
+      border: none;
+    }
+    .chart-tab.active { background: #89CFF0; color: #fff; }
+    .empty-state {
+      text-align: center;
+      padding: 30px 16px;
+      color: #9BB8C8;
+      font-size: 13px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      background: #E0F2FE;
+      color: #0284C7;
+    }
+    .mascot-bubble {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 54px;
+      height: 54px;
+      background: linear-gradient(135deg, #89CFF0, #5BA3C6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 6px 20px rgba(137,207,240,0.4);
+      cursor: pointer;
+      z-index: 50;
+      animation: float 3s ease-in-out infinite;
+      border: 3px solid #fff;
+    }
+    .mascot-bubble img { border-radius: 50%; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .switch.on { background: #89CFF0; }
+    .switch.on::after { transform: translateX(20px); }
+    #fitnessContent .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      text-align: center;
+      font-size: 11px;
+    }
+    #fitnessContent .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: #F6FBFD;
+      color: #2C5F75;
+      font-weight: 500;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    #fitnessContent .calendar-day:hover { background: #E8F4F8; }
+    #fitnessContent .calendar-day.today { background: #89CFF0; color: #fff; }
+    #fitnessContent .calendar-day.period { background: #FF8FAB; color: #fff; }
+    #fitnessContent .calendar-day.predicted { background: #FFF0F5; color: #FF8FAB; border: 1px dashed #FF8FAB; }
+    #fitnessContent .calendar-day.predict { background: #FFD166; color: #fff; }
+    #fitnessContent .ex-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+    #fitnessContent .ex-cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; background: #F6FBFD; border: 1.5px solid transparent; box-sizing: border-box; cursor: pointer; font-size: 10px; color: #2C5F75; font-weight: 500; padding: 1px; }
+    #fitnessContent .ex-cal-day:hover { background: #E8F4F8; }
+    #fitnessContent .ex-cal-day.today { background: #89CFF0; color: #fff; }
+    #fitnessContent .ex-cal-day .ex-date { font-size: 10px; line-height: 1; }
+    #fitnessContent .ex-cal-day .ex-info { font-size: 9px; font-weight: 700; line-height: 1; margin-top: 2px; }
+    .ex-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; margin-top: 4px; }
+    .ex-legend span { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; color: #7BA7BB; }
+    .ex-legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+    .hidden-section { display: none; }
+    .preset-btn {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 2px solid #B8DDEE;
+      background: #F5FBFF;
+      color: #2C5F75;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-btn:hover { border-color: #89CFF0; background: #EAF6FC; }
+    .preset-btn.active { background: #89CFF0; color: #fff; border-color: #89CFF0; }
+    .timer-display {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #2C5F75;
+      margin: 10px 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .toast {
+      position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+      background: #2C5F75; color: #fff; padding: 10px 24px; border-radius: 24px;
+      font-size: 14px; font-weight: 600; z-index: 200;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+
+    /* 减肥打卡 */
+    .fitness-tab {
+      flex: 1; font-size: 11px; padding: 7px 2px; border: none; border-radius: 12px;
+      background: #E8F4F8; color: #5B8FA8; cursor: pointer; font-weight: 600; transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .fitness-tab.active { background: linear-gradient(135deg, #89CFF0, #5BA3C6); color: #fff; }
+    .fit-card {
+      background: #fff; border-radius: 14px; padding: 12px; margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(137,207,240,0.08);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .fit-card-icon {
+      width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 18px; flex-shrink: 0;
+    }
+    .fit-card-info { flex: 1; min-width: 0; }
+    .fit-card-title { font-size: 13px; font-weight: 600; color: #2C5F75; }
+    .fit-card-sub { font-size: 11px; color: #7BA7BB; margin-top: 2px; }
+    .fit-card-del {
+      width: 28px; height: 28px; border-radius: 50%; border: none;
+      background: #FFF0F0; color: #FF8FAB; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .fit-card-del:hover { background: #FF8FAB; color: #fff; }
+    .weight-chart-wrap { background: #fff; border-radius: 14px; padding: 8px; margin-top: 10px; height: 160px; }
+    /* 体重日历 */
+    .wt-cal-head { display: grid; grid-template-columns: repeat(7, 1fr) 1.2fr; gap: 2px; margin-bottom: 2px; }
+    .wt-cal-head span { text-align: center; font-size: 9px; color: #7BA7BB; font-weight: 600; }
+    .wt-cal-head span:last-child { color: #FF8FAB; }
+    .wt-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr) 1.2fr; gap: 2px; }
+    .wt-cal-day {
+      border-radius: 8px; background: #F6FBFD; min-height: 52px; padding: 2px 1px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; line-height: 1.2; transition: background 0.2s;
+    }
+    .wt-cal-day.empty { background: transparent; cursor: default; }
+    .wt-cal-day:hover { background: #E8F4F8; }
+    .wt-cal-day.today { outline: 2px solid #89CFF0; background: #E8F7FD; }
+    .wt-cal-day .wt-d { font-size: 8px; color: #7BA7BB; line-height: 1; }
+    .wt-cal-day .wt-v { font-size: 10px; font-weight: 700; color: #2C5F75; line-height: 1.2; }
+    .wt-cal-day .wt-f { font-size: 8px; font-weight: 600; line-height: 1; }
+    .wt-cal-day .wt-n {
+      font-size: 8px; color: #E8862E; line-height: 1.3; margin-top: 1px;
+      max-width: 100%; width: 100%; padding: 0 2px; text-align: center;
+      white-space: normal; overflow: visible; word-break: break-word; overflow-wrap: break-word;
+    }
+    .wt-cal-sum {
+      border-radius: 8px; background: #FFF0F5; min-height: 52px; padding: 2px 1px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25;
+    }
+    .wt-cal-sum.empty { background: #FAFBFC; }
+    .wt-cal-sum .wt-sa { font-size: 9px; font-weight: 700; color: #2C5F75; }
+    .wt-cal-sum .wt-sd { font-size: 9px; font-weight: 700; }
+    /* 智能推荐卡片 */
+    .advice-card {
+      background: linear-gradient(135deg, #FDF6EC, #FFF9F2); border-radius: 14px;
+      padding: 12px; margin-top: 10px; border: 1.5px dashed #FFD8A8;
+    }
+    .advice-title { font-size: 12px; font-weight: 800; color: #E8862E; margin-bottom: 8px; }
+    .advice-row {
+      display: flex; gap: 8px; align-items: flex-start; background: rgba(255,255,255,0.75);
+      border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; font-size: 11px; color: #5B6B77; line-height: 1.55;
+    }
+    .advice-row:last-child { margin-bottom: 0; }
+    .advice-row b { color: #2C5F75; }
+    .advice-emoji { font-size: 14px; flex-shrink: 0; line-height: 1.3; }
+
+    @media (max-width: 520px) {
+      .phone-frame { width: 100vw; height: 100vh; border-radius: 0; border: none; }
+      body { background: #fff; }
+    }
+</style>
+<script src="https://beacon.cdn.qq.com/sdk/4.5.9/beacon_web.min.js"></script>
+<script>
+(function(){
+  try{
+    var beacon=new BeaconAction({
+      appkey:'0WEB06U85YBSLJNL',
+      versionCode:'1.0.0',
+      channelID:'share',
+      delay:1000,
+      sessionDuration:30*60*1000,
+      isOversea:false,
+      needReportRqdEvent:false
+    });
+    beacon.onDirectUserAction('preview_page_view',{
+      'url':location.href,
+      'referrer':document.referrer,
+      'title':document.title,
+      'sandbox_id':'a3bd10acf3fa4bedaac64ec751eaf200'
+    });
+  }catch(e){}
+})();
+</script></head>
+<body class="flex items-center justify-center">
+  <div class="phone-frame">
+    <nav class="sidebar" id="sidebar">
+      <div class="avatar-ring"><img src="icons/avatar.png" alt="头像"></div>
+      <div class="app-name">熊高级<br>上岸吧</div>
+      <div id="navContainer"></div>
+      <div class="sidebar-bottom">
+        <button class="nav-icon-btn" onclick="openBackupModal()" title="数据备份">☁️</button>
+      </div>
+    </nav>
+    <main class="main-area">
+      <header class="topbar">
+        <div>
+          <div class="section-title" id="pageTitle">📋 每日计划</div>
+          <div class="section-sub" id="pageSub">今天也要加油鸭！</div>
+        </div>
+        <button class="btn-primary" id="topAddBtn" onclick="handleTopAdd()">+</button>
+      </header>
+      <div class="content-scroll" id="contentArea">
+        <!-- 每日计划 -->
+        <section id="sec-daily" class="hidden-section">
+          <div class="exam-card" id="nearestExamCard">
+            <div class="exam-card-overlay"></div>
+            <div class="exam-card-left">
+              <div class="text-sm opacity-90">最近考试</div>
+              <div class="text-lg font-semibold mt-1" id="nearestName">添加考试倒计时</div>
+              <div class="text-sm opacity-90" id="nearestDate" style="margin-bottom:8px;">点击下方按钮添加</div>
+              <button class="btn-ghost" onclick="openExamModal()" id="examAddBtn" style="font-size:12px;padding:4px 14px;background:rgba(255,255,255,0.3);border-radius:20px;color:inherit;">+ 添加考试</button>
+            </div>
+            <div class="exam-card-right">
+              <div class="days-num" id="nearestDays">--</div>
+              <div class="days-label">天</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <span>🗓 今日计划总览</span>
+              <span class="pill" id="planProgressText">0/0</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="planProgressBar" style="width:0%"></div></div>
+            <div class="text-xs text-[#7BA7BB] mt-2" id="planProgressDetail">已完成 0/0 项 · 完成率 0%</div>
+            <div id="todayPlanList" class="mt-3"></div>
+          </div>
+          <!-- 累计学习数据 -->
+          <div class="card">
+            <div class="card-title"><span>📈 累计学习数据</span></div>
+            <div class="chart-tabs" style="margin-bottom:14px;">
+              <button class="chart-tab active" onclick="switchAccumRange('day', this)">日</button>
+              <button class="chart-tab" onclick="switchAccumRange('week', this)">周</button>
+              <button class="chart-tab" onclick="switchAccumRange('month', this)">月</button>
+            </div>
+            <div style="display:flex;gap:12px;">
+              <div style="flex:1;background:linear-gradient(135deg,#F0F9FF,#E8F4F8);border-radius:16px;padding:18px;text-align:center;">
+                <div style="font-size:30px;font-weight:800;color:#89CFF0;line-height:1;" id="accumTime">0h</div>
+                <div style="font-size:12px;color:#5BA3C6;margin-top:6px;">⏱ 累计时长</div>
+              </div>
+              <div style="flex:1;background:linear-gradient(135deg,#FFF9E6,#FFF3CD);border-radius:16px;padding:18px;text-align:center;">
+                <div style="font-size:30px;font-weight:800;color:#FFD166;line-height:1;" id="accumQuestions">0</div>
+                <div style="font-size:12px;color:#C9A420;margin-top:6px;">✍️ 累计题量</div>
+              </div>
+            </div>
+            <div class="chart-wrap" style="margin-top:14px;"><canvas id="accumChart"></canvas></div>
+          </div>
+          <!-- 学习计划日历 -->
+          <div class="card">
+            <div class="card-title" style="justify-content:space-between;">
+              <span>📅 学习计划日历</span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn-ghost" onclick="changePlanMonth(-1)" style="padding:4px 10px;">◀</button>
+                <span id="planCalendarMonth" style="font-size:14px;color:#2C5F75;font-weight:700;"></span>
+                <button class="btn-ghost" onclick="changePlanMonth(1)" style="padding:4px 10px;">▶</button>
+              </div>
+            </div>
+            <div class="calendar-weekdays">
+              <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+            </div>
+            <div class="calendar-grid" id="planCalendarGrid"></div>
+          </div>
+          <!-- 番茄钟 & 学习趋势 -->
+          <div class="card">
+            <div class="card-title">
+              <span>🍅 番茄钟</span>
+              <button class="btn-ghost" onclick="openTimer()">开始计时</button>
+            </div>
+            <div class="timer-display" id="todayFocusDisplay">00:00</div>
+            <div class="stat-grid">
+              <div class="stat-box"><div class="stat-num" id="statDay">0</div><div class="stat-label">今日分钟</div></div>
+              <div class="stat-box"><div class="stat-num" id="statWeek">0</div><div class="stat-label">本周分钟</div></div>
+              <div class="stat-box"><div class="stat-num" id="statMonth">0</div><div class="stat-label">本月分钟</div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 行测套卷 -->
+        <section id="sec-exam" class="hidden-section">
+          <div class="exam-stats-row" id="examStatsRow"></div>
+          <div class="card">
+            <div class="card-title"><span>📈 成绩趋势</span></div>
+            <div class="chart-wrap"><canvas id="examTrendChart"></canvas></div>
+          </div>
+          <div id="examList"></div>
+        </section>
+
+        <!-- 减肥打卡 -->
+        <section id="sec-fitness" class="hidden-section">
+          <div class="flex gap-1.5 px-1 mb-3" id="fitnessTabs">
+            <button class="fitness-tab active" onclick="switchFitnessTab('weight')">⚖️ 体重</button>
+            <button class="fitness-tab" onclick="switchFitnessTab('exercise')">🏋️ 运动</button>
+            <button class="fitness-tab" onclick="switchFitnessTab('period')">🩸 经期</button>
+          </div>
+          <div id="fitnessContent"></div>
+        </section>
+      </div>
+    </main>
+
+  </div>
+
+  <div class="mascot-bubble" onclick="mascotClick()" title="朱迪陪你学习">
+    <img src="icons/judy.png" alt="朱迪" style="width:36px;height:36px;border-radius:50%;">
+  </div>
+
+  <!-- 通用弹窗 -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header" id="modalTitle">标题</div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="closeModalDirect()">取消</button>
+        <button class="btn-primary" id="modalConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // ========== 数据存储 ==========
+    const DB_KEY = 'xionggaoji_app_v1';
+    const defaultData = {
+      navOrder: null,
+      exams: [{ id: 'exam_jiangsu_2027', name: '27江苏省考', date: '2026-12-05' }],
+      plans: [],
+      studyMinutes: [],
+      examPapers: [],
+      fitness: { weight: [], exercise: [], period: [], height: null },
+      lastVisit: new Date().toISOString()
+    };
+
+    let data = JSON.parse(JSON.stringify(defaultData));
+    function loadData() {
+      const raw = localStorage.getItem(DB_KEY);
+      if (raw) {
+        try {
+          const saved = JSON.parse(raw);
+          data = { ...defaultData, ...saved };
+          ['wrongQuestions','moduleCourses','shenlunNotes','shenlunPractices','policeWrongs','mindMaps'].forEach(k => delete data[k]);
+        } catch (e) { console.error(e); }
+      }
+      // 本地完全没有考试倒计时 → 使用默认
+      if (!data.exams || data.exams.length === 0) {
+        data.exams = JSON.parse(JSON.stringify(defaultData.exams));
+        saveData();
+      }
+    }
+    function saveData() {
+      data.lastVisit = new Date().toISOString();
+      localStorage.setItem(DB_KEY, JSON.stringify(data));
+    }
+    // ========== 数据备份/恢复 ==========
+    function openBackupModal() {
+      const lastBackup = localStorage.getItem('lastBackupTime');
+      const lastBackupStr = lastBackup ? new Date(lastBackup).toLocaleString('zh-CN') : '从未备份';
+      const recordCount = countRecords();
+      openModal('☁️ 数据备份', `
+        <div style="text-align:center;padding:8px 0 4px;">
+          <div style="font-size:13px;color:#7BA7BB;margin-bottom:6px;">当前共 <b style="color:#2C5F75;">${recordCount}</b> 条记录</div>
+          <div style="font-size:11px;color:#B8BDC6;">上次备份：${lastBackupStr}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+          <button class="btn-primary" onclick="exportData()" style="font-size:13px;padding:10px;border-radius:10px;">📥 导出备份文件</button>
+          <button class="btn-primary" onclick="copyBackupText()" style="font-size:13px;padding:10px;border-radius:10px;background:#4CAF50;">📋 复制备份文本（存微信/备忘录）</button>
+          <button class="btn-ghost" onclick="document.getElementById('importFileInput').click()" style="font-size:13px;padding:10px;border-radius:10px;border:2px solid #E0E0E0;">📤 导入备份文件恢复</button>
+          <button class="btn-ghost" onclick="openPasteImport()" style="font-size:13px;padding:10px;border-radius:10px;border:2px solid #E0E0E0;">📋 从备份文本恢复</button>
+          <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importData(event)">
+        </div>
+        <div style="margin-top:12px;padding:10px;background:#FFF8E1;border-radius:8px;font-size:11px;color:#E67E22;line-height:1.6;">
+          💡 建议每周备份一次。<b>手机上最稳的云端保存方法</b>：点「复制备份文本」→ 打开微信发给「文件传输助手」或存到收藏，换机/网址失效时用「从备份文本恢复」粘贴回来即可满血复活。
+        </div>
+      `, () => {});
+      // 隐藏确定按钮
+      document.getElementById('modalConfirm').style.display = 'none';
+    }
+    function countRecords() {
+      let c = 0;
+      c += data.plans.length;
+      c += data.examPapers.length;
+      c += (data.fitness.weight||[]).length + (data.fitness.exercise||[]).length + (data.fitness.period||[]).length;
+      return c;
+    }
+    function exportData() {
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `上岸吧备份_${fmtDate(new Date())}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      localStorage.setItem('lastBackupTime', new Date().toISOString());
+      showToast('✅ 备份文件已下载');
+      closeModalDirect();
+    }
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!imported.plans || !imported.examPapers) { showToast('❌ 文件格式不正确'); return; }
+          data = { ...defaultData, ...imported };
+          saveData();
+          closeModalDirect();
+          showToast('✅ 数据恢复成功');
+          setTimeout(() => location.reload(), 800);
+        } catch (err) { showToast('❌ 文件解析失败'); }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+    // 复制备份文本（iOS 主屏模式下最稳的备份方式）
+    function copyBackupText() {
+      const json = JSON.stringify(data);
+      const done = () => {
+        localStorage.setItem('lastBackupTime', new Date().toISOString());
+        closeModalDirect();
+        showToast('✅ 已复制！去微信/备忘录粘贴保存');
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(json).then(done).catch(() => fallbackCopyText(json, done));
+      } else fallbackCopyText(json, done);
+    }
+    function fallbackCopyText(text, done) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      if (ok) done(); else showToast('❌ 复制失败，请改用「导出备份文件」');
+    }
+    // 从粘贴的备份文本恢复
+    function openPasteImport() {
+      openModal('📋 从备份文本恢复', `
+        <label class="label">粘贴之前复制的备份文本</label>
+        <textarea class="input" id="pasteImportText" rows="6" placeholder="把微信/备忘录里保存的备份文本完整粘贴到这里"></textarea>
+      `, () => {
+        const txt = (document.getElementById('pasteImportText').value || '').trim();
+        if (!txt) { showToast('❌ 请先粘贴备份文本'); return false; }
+        try {
+          const imported = JSON.parse(txt);
+          if (!imported.plans || !imported.examPapers) { showToast('❌ 文本格式不正确'); return false; }
+          data = { ...defaultData, ...imported };
+          saveData();
+          closeModalDirect();
+          showToast('✅ 数据恢复成功');
+          setTimeout(() => location.reload(), 800);
+        } catch (err) { showToast('❌ 文本解析失败，请检查是否粘贴完整'); return false; }
+      });
+    }
+
+    // ========== 导航结构 ==========
+    const navGroups = [
+      { title: '核心<br>功能', items: [
+        { id: 'daily', label: '每日<br>计划', icon: 'judy' },
+        { id: 'exam', label: '行测<br>套卷', icon: 'nick' }
+      ] },
+      { title: '记录<br>生活', items: [
+        { id: 'fitness', label: '减肥<br>打卡', icon: 'bell' }
+      ]}
+    ];
+    let currentNav = 'daily';
+    let currentModule = null;
+    let currentMind = false;
+
+    // ========== 初始化 ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      seedDemo();
+      renderNav();
+      switchSection('daily');
+      updateExamCountdown();
+      renderTodayPlans();
+      updateStudyStats();
+      // 备份提醒：超过7天未备份时提示
+      const lastBak = localStorage.getItem('lastBackupTime');
+      if (lastBak) {
+        const days = (Date.now() - new Date(lastBak).getTime()) / 86400000;
+        if (days > 7) setTimeout(() => showToast('☁️ 已超过7天未备份，建议点击左下角☁️导出备份'), 2000);
+      } else {
+        const rc = countRecords();
+        if (rc > 5) setTimeout(() => showToast('☁️ 点击左下角☁️可备份数据，防止丢失'), 2000);
+      }
+    });
+
+    function seedDemo() {
+      if (!data.exams || data.exams.length === 0) {
+        data.exams = [{ id: 'exam_jiangsu_2027', name: '27江苏省考', date: '2026-12-05' }];
+      }
+      if (data.plans.length === 0) {
+        const today = fmtDate(new Date());
+        data.plans = [
+          { id: 1, title: '言语理解 - 张弓200题', date: today, category: '言语理解', done: true, minutes: 45 },
+          { id: 2, title: '资料分析 - 1200题3套', date: today, category: '资料分析', done: false, minutes: 0 },
+          { id: 3, title: '图形推理 - 专项练习', date: today, category: '判断推理', done: false, minutes: 0 }
+        ];
+      }
+      if (data.examPapers.length === 0) {
+        data.examPapers.push({
+          id: 1, date: '2026-07-20', source: '粉笔模考', totalScore: 72, beat: 85,
+          sections: { zl: { total: 20, correct: 16, time: 28 }, pd: { total: 40, correct: 30, time: 38 },
+                      yy: { total: 40, correct: 34, time: 35 }, sl: { total: 15, correct: 9, time: 18 },
+                      sz: { total: 45, correct: 28, time: 25 }, gs: { total: 20, correct: 12, time: 15 } },
+          note: '资料分析速度偏慢，需加强速算。'
+        });
+      }
+      saveData();
+    }
+
+    function renderNav() {
+      const container = document.getElementById('navContainer');
+      container.innerHTML = '';
+      const validIds = navGroups.flatMap(g => g.items.map(i => i.id));
+      const flat = (data.navOrder || validIds).filter(x => validIds.includes(x.id));
+      data.navOrder = flat;
+      navGroups.forEach(group => {
+        const title = document.createElement('div');
+        title.className = 'nav-group-title';
+        title.innerHTML = group.title;
+        container.appendChild(title);
+        group.items.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'nav-item' + (currentNav === item.id ? ' active' : '');
+          el.draggable = true;
+          el.dataset.id = item.id;
+          el.innerHTML = `<span class="nav-icon"><img src="icons/${item.icon}.png" alt=""></span>`;
+          el.onclick = () => switchSection(item.id, item.module, item.mind);
+          el.ondragstart = handleDragStart;
+          el.ondragover = handleDragOver;
+          el.ondrop = handleDrop;
+          el.ondragend = handleDragEnd;
+          container.appendChild(el);
+        });
+      });
+    }
+
+    let dragId = null;
+    function handleDragStart(e) { dragId = this.dataset.id; this.classList.add('dragging'); }
+    function handleDragOver(e) { e.preventDefault(); }
+    function handleDragEnd(e) { this.classList.remove('dragging'); dragId = null; }
+    function handleDrop(e) {
+      e.preventDefault();
+      const targetId = this.dataset.id;
+      if (!dragId || dragId === targetId) return;
+      const flat = data.navOrder;
+      const from = flat.findIndex(x => x.id === dragId);
+      const to = flat.findIndex(x => x.id === targetId);
+      const [moved] = flat.splice(from, 1);
+      flat.splice(to, 0, moved);
+      saveData();
+      renderNav();
+    }
+
+    function switchSection(id, module, mind) {
+      currentNav = id;
+      currentModule = module || null;
+      currentMind = mind || false;
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+      document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
+      const map = { 'daily': 'sec-daily', 'exam': 'sec-exam', 'fitness': 'sec-fitness' };
+      const secId = map[id];
+      if (secId) document.getElementById(secId).classList.remove('hidden-section');
+      updateHeader(id, module, mind);
+      document.getElementById('topAddBtn').style.display = (id === 'fitness') ? 'none' : '';
+      if (id === 'daily') { updateExamCountdown(); renderTodayPlans(); updateStudyStats(); updateAccumStats(); renderPlanCalendar(); }
+      if (id === 'exam') renderExamPapers();
+      if (id === 'fitness') renderFitness();
+    }
+
+    function updateHeader(id, module, mind) {
+      const titles = {
+        'daily': ['📋 每日计划', '今天也要加油鸭！'],
+        'exam': ['📝 行测套卷', '套题分析，稳步提升'],
+        'fitness': ['🏃 减肥打卡', '体重/运动/经期']
+      };
+      const [t, s] = titles[id] || ['工作台', ''];
+      document.getElementById('pageTitle').textContent = t;
+      document.getElementById('pageSub').textContent = s;
+    }
+
+    function handleTopAdd() {
+      if (currentNav === 'daily') addPlanFromTask();
+      else if (currentNav === 'exam') openExamPaperModal();
+    }
+
+    // ========== 通用弹窗 ==========
+    function openModal(title, html, onConfirm) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = html;
+      document.getElementById('modalBody').scrollTop = 0;
+      document.getElementById('modalConfirm').style.display = '';
+      document.getElementById('modalOverlay').classList.add('show');
+      document.getElementById('modalConfirm').onclick = () => {
+        const r = onConfirm();
+        if (r === false) return;
+        if (r && typeof r.then === 'function') { r.then(() => closeModalDirect()); }
+        else { closeModalDirect(); }
+      };
+    }
+    function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('show'); }
+    function closeModal(e) { if (e.target.id === 'modalOverlay') closeModalDirect(); }
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast'; t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => { t.classList.add('show'); }, 10);
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 1500);
+    }
+
+    // ========== 考试倒计时 ==========
+    function updateExamCountdown() {
+      if (data.exams.length === 0) {
+        document.getElementById('nearestDays').textContent = '--';
+        document.getElementById('nearestName').textContent = '添加考试倒计时';
+        document.getElementById('nearestDate').textContent = '点击下方按钮添加';
+        document.getElementById('examAddBtn').textContent = '+ 添加考试';
+        return;
+      }
+      const today = new Date(); today.setHours(0,0,0,0);
+      const sorted = data.exams.map(e => ({...e, d: Math.ceil((new Date(e.date) - today)/(1000*60*60*24))})).sort((a,b) => a.d - b.d);
+      const e = sorted[0];
+      document.getElementById('nearestDays').textContent = e.d;
+      document.getElementById('nearestName').textContent = e.name;
+      document.getElementById('nearestDate').textContent = e.date;
+      document.getElementById('examAddBtn').textContent = '✏️ 编辑考试';
+    }
+    function openExamModal() {
+      openModal('添加考试倒计时', `
+        <label class="label">考试名称</label><input class="input" id="examName" placeholder="如：国考">
+        <label class="label">考试日期</label><input class="input" type="date" id="examDate">
+      `, () => {
+        const name = document.getElementById('examName').value.trim();
+        const date = document.getElementById('examDate').value;
+        if (name && date) { data.exams.push({ id: Date.now(), name, date }); saveData(); updateExamCountdown(); }
+      });
+    }
+
+    // ========== 每日计划 ==========
+    function renderTodayPlans() {
+      const today = fmtDate(new Date());
+      const todayPlans = data.plans.filter(p => p.date === today);
+      const future = data.plans.filter(p => p.date > today).sort((a,b) => a.date.localeCompare(b.date));
+      const done = todayPlans.filter(p => p.done).length;
+      const total = todayPlans.length;
+      document.getElementById('planProgressText').textContent = `${done}/${total}`;
+      document.getElementById('planProgressBar').style.width = total ? `${done/total*100}%` : '0%';
+      document.getElementById('planProgressDetail').textContent = `已完成 ${done}/${total} 项 · 完成率 ${total ? Math.round(done/total*100) : 0}%`;
+      document.getElementById('todayPlanList').innerHTML = todayPlans.map(p => `
+        <div class="task-item ${p.done ? 'done' : ''}">
+          <div class="task-check" onclick="togglePlan(${p.id})">${p.done ? '✓' : ''}</div>
+          <div class="task-text" style="flex:1">
+            <div>${p.title}</div>
+            <div style="font-size:10px;color:#89CFF0;margin-top:2px;">⏱ ${p.minutes || 0}分钟 · 🔖 ${p.questions || 0}题</div>
+          </div>
+          <span class="pill">${p.category}</span>
+          <div class="task-delete" onclick="deletePlan(${p.id})" title="删除">✕</div>
+        </div>
+      `).join('') || '<div class="empty-state">今天还没有计划，点击右上角 + 添加吧 🐰</div>';
+    }
+    function togglePlan(id) {
+      const p = data.plans.find(x => x.id === id);
+      if (p) { p.done = !p.done; saveData(); renderTodayPlans(); renderPlanCalendar(); updateAccumStats(); }
+    }
+    function deletePlan(id) {
+      data.plans = data.plans.filter(x => x.id !== id);
+      saveData(); renderTodayPlans(); renderPlanCalendar(); updateAccumStats();
+    }
+
+    function addPlanFromTask() {
+      openModal('添加学习计划', `
+        <label class="label">计划内容</label><input class="input" id="planTitle" placeholder="今天要学什么？">
+        <label class="label">学习时长（分钟）</label><input class="input" type="number" id="planMinutes" placeholder="60" min="0" value="60">
+        <label class="label">做题数量（道）</label><input class="input" type="number" id="planQuestions" placeholder="如：40" min="0">
+        <label class="label">分类</label>
+        <select class="input" id="planCategory">
+          <option>资料分析</option><option>判断推理</option><option>言语理解</option>
+          <option>数量关系</option><option>时政常识</option><option>行测</option><option>申论</option><option>公安</option>
+        </select>
+        <label class="label">日期</label><input class="input" type="date" id="planDate" value="${fmtDate(new Date())}">
+      `, () => {
+        const title = document.getElementById('planTitle').value.trim();
+        const minutes = parseInt(document.getElementById('planMinutes').value) || 0;
+        const questions = parseInt(document.getElementById('planQuestions').value) || 0;
+        const category = document.getElementById('planCategory').value;
+        const date = document.getElementById('planDate').value;
+        if (title && date) { data.plans.push({ id: Date.now(), title, minutes, questions, category, date, done: false }); saveData(); renderTodayPlans(); renderPlanCalendar(); updateAccumStats(); }
+      });
+    }
+
+    // ========== 学习计划日历 ==========
+    let planCalendarCurrentDate = new Date();
+    function planCategoryColor(cat) {
+      const map = {
+        '资料分析': '#D6E4FF', '判断推理': '#E8D6FF', '言语理解': '#FFD6E8',
+        '数量关系': '#FFE4D6', '时政常识': '#D6F5E3', '行测': '#D6F0FF',
+        '申论': '#FFF3D6', '公安': '#FFD6D6'
+      };
+      return map[cat] || '#E8F4F8';
+    }
+    function renderPlanCalendar() {
+      const year = planCalendarCurrentDate.getFullYear();
+      const month = planCalendarCurrentDate.getMonth();
+      const today = fmtDate(new Date());
+      document.getElementById('planCalendarMonth').textContent = `${year}年${month + 1}月`;
+      const firstDay = new Date(year, month, 1);
+      const startOffset = (firstDay.getDay() + 6) % 7; // 周一为0
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevDays = new Date(year, month, 0).getDate();
+      const cells = [];
+      // 上月
+      for (let i = startOffset - 1; i >= 0; i--) {
+        const d = new Date(year, month - 1, prevDays - i);
+        cells.push({ date: fmtDate(d), day: prevDays - i, other: true });
+      }
+      // 当月
+      for (let i = 1; i <= daysInMonth; i++) {
+        const d = new Date(year, month, i);
+        cells.push({ date: fmtDate(d), day: i, other: false });
+      }
+      // 下月补齐42格
+      const nextNeeded = 42 - cells.length;
+      for (let i = 1; i <= nextNeeded; i++) {
+        const d = new Date(year, month + 1, i);
+        cells.push({ date: fmtDate(d), day: i, other: true });
+      }
+      document.getElementById('planCalendarGrid').innerHTML = cells.map(c => {
+        const dayPlans = data.plans.filter(p => p.date === c.date);
+        const done = dayPlans.filter(p => p.done).length;
+        const total = dayPlans.length;
+        const shown = dayPlans.slice(0, 3);
+        const more = dayPlans.length - shown.length;
+        return `
+        <div class="calendar-day ${c.other ? 'other-month' : ''} ${c.date === today ? 'today' : ''}" onclick="openDayPlans('${c.date}')">
+          <div class="day-num">${c.day}</div>
+          <div class="day-plans">
+            ${shown.map(p => `<div class="day-plan-chip ${p.done ? 'done' : ''}" style="background:${planCategoryColor(p.category)}" title="${p.title}">${p.title.length > 2 ? p.title.slice(0,2)+'…' : p.title}</div>`).join('')}
+            ${more > 0 ? `<div class="day-more">+${more}条计划</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function changePlanMonth(delta) {
+      planCalendarCurrentDate.setMonth(planCalendarCurrentDate.getMonth() + delta);
+      renderPlanCalendar();
+    }
+    function openDayPlans(date) {
+      const dayPlans = data.plans.filter(p => p.date === date).sort((a,b) => a.id - b.id);
+      const done = dayPlans.filter(p => p.done).length;
+      const total = dayPlans.length;
+      const listHtml = dayPlans.map(p => `
+        <div class="task-item ${p.done ? 'done' : ''}">
+          <div class="task-check" onclick="togglePlanByDate(${p.id}, '${date}')">${p.done ? '✓' : ''}</div>
+          <div class="task-text" style="flex:1">
+            <div>${p.title}</div>
+            <div style="font-size:10px;color:#89CFF0;margin-top:2px;">⏱ ${p.minutes || 0}分钟 · 🔖 ${p.questions || 0}题 · <span class="pill" style="margin:0">${p.category}</span></div>
+          </div>
+          <div class="task-delete" onclick="deletePlanByDate(${p.id}, '${date}')" title="删除">✕</div>
+        </div>
+      `).join('') || '<div class="empty-state">当天没有学习计划 🐰</div>';
+      openModal(`${date} 学习计划（${done}/${total}）`, `
+        ${listHtml}
+        <div style="margin-top:12px;">
+          <button class="btn-primary" onclick="addPlanForDate('${date}')" style="width:100%;">+ 添加当日计划</button>
+        </div>
+      `, () => {});
+    }
+    function togglePlanByDate(id, date) {
+      const p = data.plans.find(x => x.id === id);
+      if (p) { p.done = !p.done; saveData(); renderTodayPlans(); renderPlanCalendar(); updateAccumStats(); }
+      openDayPlans(date);
+    }
+    function deletePlanByDate(id, date) {
+      data.plans = data.plans.filter(x => x.id !== id);
+      saveData(); renderTodayPlans(); renderPlanCalendar(); updateAccumStats();
+      openDayPlans(date);
+    }
+    function addPlanForDate(date) {
+      closeModalDirect();
+      openModal('添加学习计划', `
+        <label class="label">计划内容</label><input class="input" id="planTitle" placeholder="今天要学什么？">
+        <label class="label">学习时长（分钟）</label><input class="input" type="number" id="planMinutes" placeholder="60" min="0" value="60">
+        <label class="label">做题数量（道）</label><input class="input" type="number" id="planQuestions" placeholder="如：40" min="0">
+        <label class="label">分类</label>
+        <select class="input" id="planCategory">
+          <option>资料分析</option><option>判断推理</option><option>言语理解</option>
+          <option>数量关系</option><option>时政常识</option><option>行测</option><option>申论</option><option>公安</option>
+        </select>
+        <label class="label">日期</label><input class="input" type="date" id="planDate" value="${date}">
+      `, () => {
+        const title = document.getElementById('planTitle').value.trim();
+        const minutes = parseInt(document.getElementById('planMinutes').value) || 0;
+        const questions = parseInt(document.getElementById('planQuestions').value) || 0;
+        const category = document.getElementById('planCategory').value;
+        const d = document.getElementById('planDate').value;
+        if (title && d) { data.plans.push({ id: Date.now(), title, minutes, questions, category, date: d, done: false }); saveData(); renderTodayPlans(); renderPlanCalendar(); updateAccumStats(); }
+      });
+    }
+
+    // ========== 学习时长统计 ==========
+    function updateStudyStats() {
+      const today = fmtDate(new Date());
+      const daySum = data.studyMinutes.filter(r => r.date === today).reduce((a,b) => a + b.minutes, 0);
+      const weekSum = data.studyMinutes.filter(r => isSameWeek(r.date, today)).reduce((a,b) => a + b.minutes, 0);
+      const monthSum = data.studyMinutes.filter(r => r.date.startsWith(today.slice(0,7))).reduce((a,b) => a + b.minutes, 0);
+      document.getElementById('statDay').textContent = daySum;
+      document.getElementById('statWeek').textContent = weekSum;
+      document.getElementById('statMonth').textContent = monthSum;
+      document.getElementById('todayFocusDisplay').textContent = `${Math.floor(daySum/60).toString().padStart(2,'0')}:${(daySum%60).toString().padStart(2,'0')}`;
+    }
+
+    // ========== 累计学习数据（时长+题量） ==========
+    let accumRange = 'day';
+    function switchAccumRange(range, btn) {
+      accumRange = range;
+      btn.parentElement.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateAccumStats();
+    }
+    function updateAccumStats() {
+      const today = fmtDate(new Date());
+      // 筛选 plan 数据
+      const filteredPlans = data.plans.filter(p => {
+        if (accumRange === 'day') return p.date === today;
+        if (accumRange === 'week') return isSameWeek(p.date, today);
+        return p.date.startsWith(today.slice(0, 7));
+      });
+      const planMins = filteredPlans.reduce((s, p) => s + (p.minutes || 0), 0);
+      const planQs = filteredPlans.reduce((s, p) => s + (p.questions || 0), 0);
+      // 筛选 studyMinutes 数据
+      const filteredMins = data.studyMinutes.filter(r => {
+        if (accumRange === 'day') return r.date === today;
+        if (accumRange === 'week') return isSameWeek(r.date, today);
+        return r.date.startsWith(today.slice(0, 7));
+      });
+      const timerMins = filteredMins.reduce((s, r) => s + (r.minutes || 0), 0);
+      const totalMins = planMins + timerMins;
+      // 更新 DOM
+      const h = Math.floor(totalMins / 60);
+      const m = totalMins % 60;
+      document.getElementById('accumTime').textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+      document.getElementById('accumQuestions').textContent = planQs;
+      renderAccumChart();
+    }
+    let accumChartInstance = null;
+    function renderAccumChart() {
+      const ctx = document.getElementById('accumChart').getContext('2d');
+      const today = fmtDate(new Date());
+      const labels = [], timeData = [], qData = [];
+
+      if (accumRange === 'day') {
+        for (let i = 6; i >= 0; i--) {
+          const d = offsetDate(i);
+          labels.push(d.slice(5));
+          const plans = data.plans.filter(p => p.date === d);
+          const mins = data.studyMinutes.filter(r => r.date === d);
+          timeData.push(mins.reduce((s,r)=>s+r.minutes,0) + plans.reduce((s,p)=>s+(p.minutes||0),0));
+          qData.push(plans.reduce((s,p)=>s+(p.questions||0),0));
+        }
+      } else if (accumRange === 'week') {
+        for (let i = 3; i >= 0; i--) {
+          labels.push('W-' + i);
+          const d = offsetDate(i * 7);
+          const plans = data.plans.filter(p => isSameWeek(p.date, d));
+          const mins = data.studyMinutes.filter(r => isSameWeek(r.date, d));
+          timeData.push(mins.reduce((s,r)=>s+r.minutes,0) + plans.reduce((s,p)=>s+(p.minutes||0),0));
+          qData.push(plans.reduce((s,p)=>s+(p.questions||0),0));
+        }
+      } else {
+        for (let i = 5; i >= 0; i--) {
+          const m = offsetMonth(i);
+          labels.push(m);
+          const plans = data.plans.filter(p => p.date.startsWith(m));
+          const mins = data.studyMinutes.filter(r => r.date.startsWith(m));
+          timeData.push(mins.reduce((s,r)=>s+r.minutes,0) + plans.reduce((s,p)=>s+(p.minutes||0),0));
+          qData.push(plans.reduce((s,p)=>s+(p.questions||0),0));
+        }
+      }
+      if (accumChartInstance) accumChartInstance.destroy();
+      accumChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: '学习时长(min)', data: timeData, backgroundColor: 'rgba(137,207,240,0.6)', borderColor: '#89CFF0', borderWidth: 1, borderRadius: 6, yAxisID: 'y' },
+            { label: '做题数量(道)', data: qData, backgroundColor: 'rgba(255,209,102,0.6)', borderColor: '#FFD166', borderWidth: 1, borderRadius: 6, yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { boxWidth: 10, boxHeight: 10, padding: 12, usePointStyle: true, font: { size: 11, family: "'PingFang SC','Microsoft YaHei',sans-serif" }, color: '#5B8FA8' } }
+          },
+          scales: {
+            y: { position: 'left', beginAtZero: true, grid: { color: '#F0F9FF' }, border: { display: false }, ticks: { color: '#7BA7BB', font: { size: 10 } } },
+            y1: { position: 'right', beginAtZero: true, grid: { display: false }, border: { display: false }, ticks: { color: '#7BA7BB', font: { size: 10 } } },
+            x: { grid: { display: false }, border: { display: false }, ticks: { color: '#7BA7BB', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    // ========== 计时器 ==========
+    let timerInterval = null, timerSeconds = 0;
+    function openTimer() {
+      openModal('🍅 番茄钟', `
+        <div class="timer-display" id="timerDisplay">00:00</div>
+        <div class="text-center text-xs text-[#7BA7BB] mb-4">专注学习，朱迪陪你 🐰</div>
+        <div class="flex justify-center gap-2 mb-4 flex-wrap" id="presetBtns">
+          <button class="preset-btn" onclick="setTimerPreset(15)">🍅 15分钟</button>
+          <button class="preset-btn" onclick="setTimerPreset(25)">🍅 25分钟</button>
+          <button class="preset-btn" onclick="setTimerPreset(30)">🍅 30分钟</button>
+          <button class="preset-btn" onclick="setTimerPreset(45)">🍅 45分钟</button>
+          <button class="preset-btn" onclick="setTimerPreset(60)">🍅 60分钟</button>
+        </div>
+        <div class="flex justify-center gap-3">
+          <button class="btn-primary" id="timerStartBtn" onclick="toggleTimer()">开始</button>
+          <button class="btn-ghost" onclick="stopTimerAndSave()">结束并保存</button>
+        </div>
+      `, () => { stopTimerAndSave(); });
+      timerSeconds = 0;
+      updateTimerDisplay();
+    }
+    function setTimerPreset(mins) {
+      timerSeconds = mins * 60;
+      updateTimerDisplay();
+      // 高亮选中的预设按钮
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+    function toggleTimer() {
+      const btn = document.getElementById('timerStartBtn');
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; btn.textContent = '继续'; }
+      else { timerInterval = setInterval(() => { timerSeconds++; updateTimerDisplay(); }, 1000); btn.textContent = '暂停'; }
+    }
+    function updateTimerDisplay() {
+      const el = document.getElementById('timerDisplay');
+      if (el) el.textContent = `${Math.floor(timerSeconds/60).toString().padStart(2,'0')}:${(timerSeconds%60).toString().padStart(2,'0')}`;
+    }
+    function stopTimerAndSave() {
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      if (timerSeconds >= 60) {
+        const today = fmtDate(new Date());
+        data.studyMinutes.push({ id: Date.now(), date: today, minutes: Math.round(timerSeconds/60) });
+        saveData(); updateStudyStats(); updateAccumStats();
+      }
+      timerSeconds = 0;
+      closeModalDirect();
+    }
+
+    // ========== 行测套卷 ==========
+    function renderExamPapers() {
+      const papers = data.examPapers;
+      // 统计概览
+      if (papers.length > 0) {
+        const totalCount = papers.length;
+        const avgScore = Math.round(papers.reduce((s,p) => s + (p.totalScore||0), 0) / totalCount);
+        const maxScore = Math.max(...papers.map(p => p.totalScore||0));
+        const avgRate = Math.round(papers.reduce((s,p) => s + (p.beat||0), 0) / totalCount);
+        document.getElementById('examStatsRow').innerHTML = `
+          <div class="exam-stat-card"><div class="stat-num">${totalCount}</div><div class="stat-label">📦 套卷数</div></div>
+          <div class="exam-stat-card accent"><div class="stat-num">${avgScore}</div><div class="stat-label">📐 平均分</div></div>
+          <div class="exam-stat-card gold"><div class="stat-num">${avgRate}%</div><div class="stat-label">🥇 平均击败率</div></div>
+          <div class="exam-stat-card accent"><div class="stat-num">${maxScore}</div><div class="stat-label">🏆 最高分</div></div>
+        `;
+      } else {
+        document.getElementById('examStatsRow').innerHTML = '';
+      }
+      // 套卷卡片列表（新录入的排前面）
+      const sortedPapers = [...papers].sort((a,b) => (b.date.localeCompare(a.date)) || (b.id - a.id));
+      document.getElementById('examList').innerHTML = sortedPapers.map(p => {
+        const total = Object.values(p.sections).reduce((a,s) => a + s.total, 0);
+        const correct = Object.values(p.sections).reduce((a,s) => a + s.correct, 0);
+        const totalTime = Object.values(p.sections).reduce((a,s) => a + (s.time||0), 0);
+        const score = p.totalScore || 0;
+        const scoreClass = score >= 70 ? 'paper-score-high' : score >= 60 ? 'paper-score-mid' : 'paper-score-low';
+        return `
+        <div class="paper-card">
+          <div class="paper-card-header">
+            <div>
+              <div class="paper-source">${p.source}</div>
+              <div class="paper-date">${p.date}</div>
+            </div>
+            <div class="paper-score-badge ${scoreClass}">${score}<span style="font-size:13px;font-weight:500">分</span></div>
+          </div>
+          <div class="paper-meta">
+            <span>⏰ 用时 <b style="color:#2C5F75">${totalTime}min</b></span>
+            <span>📃 ${correct}/${total}题</span>
+            ${p.beat ? `<span>🏅 击败 <b style="color:#2C5F75">${p.beat}%</b></span>` : ''}
+          </div>
+          <div class="paper-sections">
+            ${Object.entries(p.sections).map(([k,v]) => `
+              <span class="paper-section-pill">${secIcon(k)} ${secName(k)} <b class="ps-correct">${v.correct}</b><span class="ps-total">/${v.total}</span> <span class="ps-time">${v.time || 0}min</span></span>
+            `).join('')}
+          </div>
+          ${p.note ? `<div class="paper-note">💡 ${p.note}</div>` : ''}
+          <div class="paper-actions">
+            <button class="btn-ghost" onclick="editExamPaper(${p.id})">✏️ 编辑</button>
+            <button class="btn-ghost" onclick="deleteExamPaper(${p.id})">🗑 删除</button>
+          </div>
+        </div>`;
+      }).join('') || '<div class="empty-state">还没有套卷记录，点击右上角 + 添加 🌟</div>';
+      renderExamTrend();
+    }
+    function secName(k) {
+      const map = { zl: '资料', pd: '判断', yy: '言语', sl: '数量', sz: '时政', gs: '常识' };
+      return map[k] || k;
+    }
+    function secIcon(k) {
+      const map = { zl: '📑', pd: '🧩', yy: '💬', sl: '🔢', sz: '🌍', gs: '📚' };
+      return map[k] || '';
+    }
+    let examTrendInstance = null;
+    function renderExamTrend() {
+      const ctx = document.getElementById('examTrendChart').getContext('2d');
+      const sorted = [...data.examPapers].sort((a,b) => a.date.localeCompare(b.date));
+      const labels = sorted.map(p => p.date.slice(5));
+      const scores = sorted.map(p => p.totalScore || 0);
+      const rates = sorted.map(p => p.beat || 0);
+      if (examTrendInstance) examTrendInstance.destroy();
+      examTrendInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [
+          { label: '总分', data: scores, borderColor: '#89CFF0', backgroundColor: 'rgba(137,207,240,0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#89CFF0', pointRadius: 4, pointHoverRadius: 6, borderWidth: 2.5, yAxisID: 'y' },
+          { label: '击败率%', data: rates, borderColor: '#FFD166', backgroundColor: 'rgba(255,209,102,0.08)', fill: true, tension: 0.4, pointBackgroundColor: '#FFD166', pointRadius: 4, pointHoverRadius: 6, borderWidth: 2.5, yAxisID: 'y1' }
+        ]},
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { labels: { boxWidth: 12, boxHeight: 12, padding: 16, usePointStyle: true, font: { size: 11, family: "'PingFang SC','Microsoft YaHei',sans-serif" }, color: '#5B8FA8' } },
+            tooltip: { backgroundColor: '#fff', titleColor: '#2C5F75', bodyColor: '#5B8FA8', borderColor: '#C5E0F0', borderWidth: 1, cornerRadius: 10, padding: 10, titleFont: { size: 12 }, bodyFont: { size: 11 } }
+          },
+          scales: {
+            y: { position: 'left', grid: { color: '#F0F9FF' }, border: { display: false }, ticks: { color: '#7BA7BB', font: { size: 10 } } },
+            y1: { position: 'right', grid: { display: false }, border: { display: false }, min: 0, max: 100, ticks: { color: '#7BA7BB', font: { size: 10 }, callback: v => v + '%' } },
+            x: { grid: { display: false }, border: { display: false }, ticks: { color: '#7BA7BB', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+    function openExamPaperModal() {
+      openModal('录入套卷成绩', `
+        <label class="label">做题日期</label><input class="input" type="date" id="paperDate" value="${fmtDate(new Date())}">
+        <label class="label">套题来源</label><input class="input" id="paperSource" placeholder="如：粉笔模考">
+        <label class="label">资料 (对/总/用时min)</label>
+        <div class="grid grid-cols-3 gap-2"><input class="input" type="number" id="zl_c" placeholder="对"><input class="input" type="number" id="zl_t" placeholder="总"><input class="input" type="number" id="zl_time" placeholder="用时"></div>
+        <label class="label">判断 (对/总/用时min)</label>
+        <div class="grid grid-cols-3 gap-2"><input class="input" type="number" id="pd_c" placeholder="对"><input class="input" type="number" id="pd_t" placeholder="总"><input class="input" type="number" id="pd_time" placeholder="用时"></div>
+        <label class="label">言语 (对/总/用时min)</label>
+        <div class="grid grid-cols-3 gap-2"><input class="input" type="number" id="yy_c" placeholder="对"><input class="input" type="number" id="yy_t" placeholder="总"><input class="input" type="number" id="yy_time" placeholder="用时"></div>
+        <label class="label">数量 (对/总/用时min)</label>
+        <div class="grid grid-cols-3 gap-2"><input class="input" type="number" id="sl_c" placeholder="对"><input class="input" type="number" id="sl_t" placeholder="总"><input class="input" type="number" id="sl_time" placeholder="用时"></div>
+        <label class="label">时政 (对/总/用时min)</label>
+        <div class="grid grid-cols-3 gap-2"><input class="input" type="number" id="sz_c" placeholder="对"><input class="input" type="number" id="sz_t" placeholder="总"><input class="input" type="number" id="sz_time" placeholder="用时"></div>
+        <label class="label">常识 (对/总/用时min)</label>
+        <div class="grid grid-cols-3 gap-2"><input class="input" type="number" id="gs_c" placeholder="对"><input class="input" type="number" id="gs_t" placeholder="总"><input class="input" type="number" id="gs_time" placeholder="用时"></div>
+        <label class="label">总分</label><input class="input" type="number" id="paperScore" placeholder="0">
+        <label class="label">击败率 (%)</label><input class="input" type="number" id="paperBeat" placeholder="0">
+        <label class="label">备注（错题/遗忘知识点）</label><textarea class="input" id="paperNote" rows="2"></textarea>
+      `, () => {
+        try {
+          const paper = {
+            id: Date.now(), date: document.getElementById('paperDate').value, source: document.getElementById('paperSource').value || '未命名',
+            totalScore: +document.getElementById('paperScore').value || 0, beat: +document.getElementById('paperBeat').value || 0,
+            sections: {
+              zl: { total: +document.getElementById('zl_t').value||0, correct: +document.getElementById('zl_c').value||0, time: +document.getElementById('zl_time').value||0 },
+              pd: { total: +document.getElementById('pd_t').value||0, correct: +document.getElementById('pd_c').value||0, time: +document.getElementById('pd_time').value||0 },
+              yy: { total: +document.getElementById('yy_t').value||0, correct: +document.getElementById('yy_c').value||0, time: +document.getElementById('yy_time').value||0 },
+              sl: { total: +document.getElementById('sl_t').value||0, correct: +document.getElementById('sl_c').value||0, time: +document.getElementById('sl_time').value||0 },
+              sz: { total: +document.getElementById('sz_t').value||0, correct: +document.getElementById('sz_c').value||0, time: +document.getElementById('sz_time').value||0 },
+              gs: { total: +document.getElementById('gs_t').value||0, correct: +document.getElementById('gs_c').value||0, time: +document.getElementById('gs_time').value||0 }
+            },
+            note: document.getElementById('paperNote').value
+          };
+          data.examPapers.push(paper); saveData(); renderExamPapers();
+          showToast('✅ 套卷成绩已保存');
+        } catch(e) { showToast('❌ 保存失败，请刷新重试'); console.error(e); }
+      });
+    }
+    function deleteExamPaper(id) { data.examPapers = data.examPapers.filter(p => p.id !== id); saveData(); renderExamPapers(); }
+    function editExamPaper(id) { /* 简化：删除后重新添加 */ deleteExamPaper(id); openExamPaperModal(); }
+
+    // ========== 减肥打卡 ==========
+    let fitnessTab = 'weight';
+    function switchFitnessTab(tab) {
+      fitnessTab = tab;
+      renderFitness();
+    }
+    function renderFitness() {
+      fitnessTab = fitnessTab || 'weight';
+      document.querySelectorAll('.fitness-tab').forEach(b => {
+        const map = {weight:'体重',exercise:'运动',period:'经期'};
+        b.classList.toggle('active', map[fitnessTab] && b.textContent.includes(map[fitnessTab]));
+      });
+      if (fitnessTab === 'weight') renderFitnessWeight();
+      else if (fitnessTab === 'exercise') renderFitnessExercise();
+      else if (fitnessTab === 'period') renderFitnessPeriod();
+    }
+
+    let _wtMonthOffset = 0;
+    function changeWtMonth(delta) { _wtMonthOffset += delta; renderFitnessWeight(); }
+
+    function renderFitnessWeight() {
+      const list = [...(data.fitness.weight || [])].sort((a,b) => a.date.localeCompare(b.date) || a.id - b.id);
+      const byDate = {}; list.forEach(w => { byDate[w.date] = w.weight; });
+      const latest = list[list.length - 1];
+
+      let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:12px;color:#7BA7BB;">最新体重</span>
+        <span style="font-size:22px;font-weight:800;color:#FF8FAB;">${latest ? latest.weight + 'kg' : '--'}</span>
+      </div>`;
+      if (list.length > 1) {
+        const prev = list[list.length - 2];
+        const diff = (latest.weight - prev.weight).toFixed(1);
+        const trend = diff > 0 ? '↑' + diff : diff < 0 ? '↓' + Math.abs(diff) : '→ 持平';
+        const color = diff > 0 ? '#FF8FAB' : diff < 0 ? '#4CAF50' : '#7BA7BB';
+        html += `<div style="font-size:11px;color:${color};margin-bottom:6px;">较上次 ${trend} kg</div>`;
+      }
+      html += `<button class="btn-ghost" onclick="quickAddWeight('${fmtDate(new Date())}')" style="font-size:12px;width:100%;border:2px dashed #E0E0E0;padding:8px;border-radius:12px;">+ 记录体重</button>`;
+
+      // ---- 体重日历（每周最后一列为本周总结） ----
+      const now = new Date(); now.setMonth(now.getMonth() + _wtMonthOffset);
+      const year = now.getFullYear(), month = now.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const startDow = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const todayStr = fmtDate(new Date());
+
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;">
+        <button class="btn-ghost" onclick="changeWtMonth(-1)" style="font-size:13px;padding:2px 8px;">◀</button>
+        <span style="font-size:12px;font-weight:700;color:#2C5F75;">${year}年${month+1}月 体重日历</span>
+        <button class="btn-ghost" onclick="changeWtMonth(1)" style="font-size:13px;padding:2px 8px;">▶</button>
+      </div>`;
+      html += `<div class="wt-cal-head">${['一','二','三','四','五','六','日','周'].map(d=>`<span>${d}</span>`).join('')}</div>`;
+      html += `<div class="wt-cal-grid">`;
+
+      // 单元格序列（null = 空白占位）
+      const cells = [];
+      for (let i = 0; i < startDow; i++) cells.push(null);
+      for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+      while (cells.length % 7 !== 0) cells.push(null);
+
+      const dStr = d => `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      // 每日相对上一次记录的涨跌 + 备注
+      const prevMap = {}, noteMap = {};
+      list.forEach((w, i) => { if (w.note) noteMap[w.date] = w.note; if (i > 0) prevMap[w.date] = list[i-1].weight; });
+
+      for (let r = 0; r < cells.length / 7; r++) {
+        const week = cells.slice(r*7, r*7+7);
+        const weekStart = week.find(d => d) ? dStr(week.find(d => d)) : null;
+        const weekEnd = [...week].reverse().find(d => d) ? dStr([...week].reverse().find(d => d)) : null;
+        const inWeek = list.filter(w => (!weekStart || w.date >= weekStart) && (!weekEnd || w.date <= weekEnd));
+
+        week.forEach(d => {
+          if (!d) { html += `<div class="wt-cal-day empty"></div>`; return; }
+          const dateStr = dStr(d);
+          const w = byDate[dateStr];
+          const isToday = dateStr === todayStr;
+          let inner = `<span class="wt-d">${d}</span>`;
+          if (w !== undefined) {
+            inner += `<span class="wt-v">${w}</span>`;
+            let noteCls = ''; // ''=无法判断涨跌(首条/持平)，保持默认橙
+            if (prevMap[dateStr] !== undefined) {
+              const diff = +(w - prevMap[dateStr]).toFixed(1);
+              if (diff > 0) { inner += `<span class="wt-f" style="color:#FF8FAB;">↑${diff}</span>`; noteCls = 'up'; }
+              else if (diff < 0) { inner += `<span class="wt-f" style="color:#4CAF50;">↓${Math.abs(diff)}</span>`; noteCls = 'down'; }
+              else inner += `<span class="wt-f" style="color:#7BA7BB;">→</span>`;
+            }
+            if (noteMap[dateStr]) {
+              const nc = noteCls === 'up' ? 'color:#FF8FAB;' : noteCls === 'down' ? 'color:#4CAF50;' : '';
+              inner += `<span class="wt-n" title="${noteMap[dateStr]}"${nc ? ` style="${nc}"` : ''}>${noteMap[dateStr]}</span>`;
+            }
+          }
+          html += `<div class="wt-cal-day${isToday?' today':''}" onclick="quickAddWeight('${dateStr}')">${inner}</div>`;
+        });
+
+        // 本周总结列：周均值 + 净变化
+        if (inWeek.length > 0) {
+          const base = (list.filter(w => weekStart && w.date < weekStart).slice(-1)[0] || inWeek[0]).weight;
+          const net = +(inWeek[inWeek.length-1].weight - base).toFixed(1);
+          const avg = (inWeek.reduce((s,w) => s + w.weight, 0) / inWeek.length).toFixed(1);
+          const netCls = net > 0 ? 'color:#FF8FAB;' : net < 0 ? 'color:#4CAF50;' : 'color:#7BA7BB;';
+          const netTxt = net > 0 ? '↑' + net : net < 0 ? '↓' + Math.abs(net) : '→';
+          html += `<div class="wt-cal-sum"><span class="wt-sa">均${avg}</span><span class="wt-sd" style="${netCls}">${netTxt}kg</span></div>`;
+        } else {
+          html += `<div class="wt-cal-sum empty"></div>`;
+        }
+      }
+      html += `</div>`;
+      html += `<div style="font-size:10px;color:#7BA7BB;margin:4px 0 8px;text-align:center;">点击日期记录/修改体重 · ↑涨 ↓跌 · 末列为周均值与净变化</div>`;
+
+      // 趋势图（保留）
+      html += `<div class="weight-chart-wrap"><canvas id="weightChart"></canvas></div>`;
+      // 智能推荐
+      html += renderWeightAdvice(latest);
+      document.getElementById('fitnessContent').innerHTML = html;
+      if (list.length >= 2) drawWeightChart(list);
+    }
+
+    function renderWeightAdvice(latest) {
+      if (!latest) return '';
+      const w = latest.weight;
+      const h = data.fitness.height || 0;
+      const water = Math.min(2.8, Math.max(1.5, +(w * 0.033).toFixed(1))); // 每日饮水（升）
+      let html = `<div class="advice-card">
+        <div class="advice-title">🎯 智能推荐 · 基于 ${w}kg</div>`;
+      // 减重目标
+      if (h > 0) {
+        const bmi = +(w / Math.pow(h/100, 2)).toFixed(1);
+        const stdW = +(Math.pow(h/100, 2) * 22).toFixed(1); // 标准体重 BMI22
+        const loseKg = +(w - stdW).toFixed(1);
+        let goal;
+        if (loseKg > 0.05) goal = `BMI <b>${bmi}</b>，建议再减 <b style="color:#FF8FAB;">${(loseKg*2).toFixed(1)} 斤</b>（目标约 ${stdW}kg，每周减0.5~1斤最健康）`;
+        else if (loseKg < -2) goal = `BMI <b>${bmi}</b>，已低于标准区间，注意营养均衡，不要节食过度哦 🍀`;
+        else goal = `BMI <b>${bmi}</b>，已在健康区间，保持住！✨`;
+        html += `<div class="advice-row"><span class="advice-emoji">⚖️</span><div><b>减重目标</b>：${goal}</div></div>`;
+      } else {
+        html += `<div class="advice-row"><span class="advice-emoji">⚖️</span><div><b>减重目标</b>：设置身高后可计算BMI与应减斤数 <button class="btn-ghost" onclick="openHeightModal()" style="font-size:11px;padding:2px 10px;border-radius:10px;border:2px solid #E0E0E0;">📏 设置身高</button></div></div>`;
+      }
+      // 运动推荐
+      const over = h > 0 ? Math.max(0, w - stdW_h(h)) : (w >= 62 ? 4 : w >= 55 ? 1.5 : 0);
+      let ex;
+      if (over > 3) ex = '有氧燃脂为主：游泳/跳绳 40~60分钟 × 每周5次，搭配每周2次力量训练防松弛';
+      else if (over > 0) ex = '有氧+塑形：慢跑/帕梅拉 30~45分钟 × 每周4次，加2次核心训练';
+      else ex = '保持型运动：瑜伽/散步/健身操 30分钟 × 每周3~4次，维持代谢即可';
+      html += `<div class="advice-row"><span class="advice-emoji">🏃</span><div><b>运动方式</b>：${ex}</div></div>`;
+      // 饮食推荐
+      const kcal = Math.round((h > 0 ? stdW_h(h) : Math.max(45, w - 5)) * 28);
+      let diet;
+      if (over > 3) diet = `每日约 <b>${kcal} kcal</b>：早餐鸡蛋+全麦+牛奶，午餐鸡胸/鱼+半碗杂粮饭，晚餐蛋白+蔬菜为主，戒奶茶零食和宵夜`;
+      else if (over > 0) diet = `每日约 <b>${kcal} kcal</b>：优质蛋白（鸡胸/虾/豆腐）+ 粗粮主食 + 大量蔬菜，少油少糖，三餐规律`;
+      else diet = '正常均衡饮食：蛋白足量、蔬果丰富、粗细搭配，睡前3小时不进食';
+      html += `<div class="advice-row"><span class="advice-emoji">🥗</span><div><b>饮食推荐</b>：${diet}</div></div>`;
+      // 饮水推荐
+      html += `<div class="advice-row"><span class="advice-emoji">💧</span><div><b>每日饮水</b>：约 <b style="color:#5BA3C6;">${water} 升</b>（30ml/kg，约 ${Math.round(water*1000/200)} 杯，运动日多喝1~2杯）</div></div>`;
+      html += `</div>`;
+      return html;
+    }
+    function stdW_h(h) { return +(Math.pow(h/100, 2) * 22).toFixed(1); }
+
+    function openHeightModal() {
+      openModal('📏 设置身高', `
+        <label class="label">身高 (cm)</label><input class="input" id="fhHeight" type="number" step="1" placeholder="如：165" value="${data.fitness.height || ''}">
+      `, () => {
+        const h = parseInt(document.getElementById('fhHeight').value);
+        if (!h || h < 100 || h > 230) return;
+        data.fitness.height = h;
+        saveData(); renderFitnessWeight();
+      });
+    }
+
+    function quickAddWeight(dateStr) {
+      const exist = (data.fitness.weight || []).find(w => w.date === dateStr);
+      openModal((exist ? '修改体重 - ' : '记录体重 - ') + dateStr, `
+        <label class="label">体重 (kg)</label><input class="input" id="fwWeight" type="number" step="0.1" value="${exist ? exist.weight : ''}" placeholder="如：55.0">
+        <label class="label">备注（涨/跌原因，选填）</label><input class="input" id="fwNote" maxlength="20" placeholder="如：聚餐、熬夜、生理期、加了运动" value="${exist && exist.note ? exist.note : ''}">
+        <label class="label">日期</label><input class="input" type="date" id="fwDate" value="${dateStr}">
+        ${exist ? `<button class="btn-ghost" onclick="deleteWeightByDate('${dateStr}')" style="font-size:12px;color:#FF8FAB;border:2px solid #FFE0E8;padding:6px;border-radius:10px;width:100%;margin-top:4px;">🗑 删除该日记录</button>` : ''}
+      `, () => {
+        const w = parseFloat(document.getElementById('fwWeight').value);
+        const d = document.getElementById('fwDate').value || dateStr;
+        const note = document.getElementById('fwNote').value.trim();
+        if (!w || w <= 0) return;
+        if (exist && exist.date === d) { exist.weight = w; exist.note = note; }
+        else {
+          const dup = (data.fitness.weight || []).find(x => x.date === d);
+          if (dup) { dup.weight = w; dup.note = note; }
+          else data.fitness.weight.push({ id: Date.now(), date: d, weight: w, note: note });
+        }
+        saveData(); renderFitnessWeight();
+      });
+    }
+
+    function deleteWeightByDate(dateStr) {
+      data.fitness.weight = (data.fitness.weight || []).filter(w => w.date !== dateStr);
+      saveData(); closeModalDirect(); renderFitnessWeight();
+    }
+
+    let weightChartInstance = null;
+    function drawWeightChart(data) {
+      const ctx = document.getElementById('weightChart');
+      if (!ctx) return;
+      if (weightChartInstance) weightChartInstance.destroy();
+      weightChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => d.date.slice(5)),
+          datasets: [{
+            label: '体重(kg)', data: data.map(d => d.weight),
+            borderColor: '#FF8FAB', backgroundColor: 'rgba(255,143,171,0.08)',
+            fill: true, tension: 0.4, pointBackgroundColor: '#FF8FAB',
+            pointRadius: 3, pointHoverRadius: 5, borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { font: { size: 9 }, color: '#7BA7BB' }, grid: { display: false } },
+            y: { ticks: { font: { size: 9 }, color: '#7BA7BB' }, grid: { color: '#F0F0F0' } }
+          }
+        }
+      });
+    }
+
+    function addFitnessWeight() { quickAddWeight(fmtDate(new Date())); }
+
+    let _exMonthOffset = 0;
+    function changeExMonth(delta) { _exMonthOffset += delta; renderFitnessExercise(); }
+    // 运动类型→填涂颜色映射（主色/浅底/缩写）
+    const exColorMap = {
+      '游泳':    { c:'#3FA9DC', bg:'#E3F4FC', ab:'泳' },
+      '跑步':    { c:'#4CAF50', bg:'#E8F5E9', ab:'跑' },
+      '骑行':    { c:'#F0A500', bg:'#FFF6E0', ab:'骑' },
+      '跳绳':    { c:'#FF8A3C', bg:'#FFF0E3', ab:'绳' },
+      '帕梅拉':  { c:'#9B7BFF', bg:'#F0EAFF', ab:'帕' },
+      '瑜伽':    { c:'#9B7BFF', bg:'#F0EAFF', ab:'瑜' },
+      '健身操':  { c:'#9B7BFF', bg:'#F0EAFF', ab:'操' },
+      '力量训练':{ c:'#F06292', bg:'#FCE7EF', ab:'力' },
+      '散步':    { c:'#7FB3C8', bg:'#EDF6F9', ab:'散' },
+      '其他':    { c:'#90A4AE', bg:'#EFF3F5', ab:'他' }
+    };
+    function renderFitnessExercise() {
+      const list = data.fitness.exercise || [];
+      const todayStr = fmtDate(new Date());
+      // ---- 今日运动情况 ----
+      const todayRecs = list.filter(d => d.date === todayStr);
+      const todayMins = todayRecs.reduce((s,d) => s + (d.duration || 0), 0);
+      let html;
+      if (todayRecs.length) {
+        const detail = todayRecs.map(r => `${r.type} ${r.duration || 0}分钟${r.note ? ' / ' + r.note + 'km' : ''}`).join(' · ');
+        html = `<div style="background:#E8F5E9;border-radius:12px;padding:8px 10px;margin-bottom:8px;font-size:11px;color:#3E7A4E;line-height:1.5;">💪 今日运动：<b>${detail}</b> · 共 <b style="color:#4CAF50;">${todayMins} 分钟</b></div>`;
+      } else {
+        html = `<div style="background:#F6FBFD;border-radius:12px;padding:8px 10px;margin-bottom:8px;font-size:11px;color:#7BA7BB;">🤍 今日还未运动，动一动吧～</div>`;
+      }
+      // ---- 月历 ----
+      const now = new Date(); now.setMonth(now.getMonth() + _exMonthOffset);
+      const year = now.getFullYear(), month = now.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const startDow = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const dayRecs = {};
+      list.forEach(d => { if (!dayRecs[d.date]) dayRecs[d.date] = []; dayRecs[d.date].push(d); });
+
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <button class="btn-ghost" onclick="changeExMonth(-1)" style="font-size:13px;padding:2px 8px;">◀</button>
+        <span style="font-size:12px;font-weight:700;color:#2C5F75;">${year}年${month+1}月</span>
+        <button class="btn-ghost" onclick="changeExMonth(1)" style="font-size:13px;padding:2px 8px;">▶</button>
+      </div>`;
+      html += `<div class="calendar-weekdays">${['一','二','三','四','五','六','日'].map(d=>`<span>${d}</span>`).join('')}</div>`;
+      html += `<div class="ex-cal-grid">`;
+      for (let i = 0; i < startDow; i++) html += `<div></div>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const recs = dayRecs[dateStr] || [];
+        const isToday = dateStr === todayStr;
+        let cls = 'ex-cal-day' + (isToday && !recs.length ? ' today' : '');
+        let style = '', info = '';
+        if (recs.length) {
+          const main = exColorMap[recs[0].type] || exColorMap['其他'];
+          const mins = recs.reduce((s,r) => s + (r.duration || 0), 0);
+          const label = recs.length === 1 ? `${main.ab}${mins}′` : `${recs.length}项${mins}′`;
+          style = `background:${main.bg};border:1.5px solid ${main.c};`;
+          if (isToday) style += 'outline:2px solid #89CFF0;';
+          info = `<span class="ex-info" style="color:${main.c};">${label}</span>`;
+        }
+        html += `<div class="${cls}"${style ? ` style="${style}"` : ''} onclick="quickAddExercise('${dateStr}')"><span class="ex-date">${d}</span>${info}</div>`;
+      }
+      html += `</div>`;
+      html += `<div class="ex-legend">` + Object.keys(exColorMap).map(k => `<span><i style="background:${exColorMap[k].c};"></i>${k}</span>`).join('') + `</div>`;
+      html += `<div style="font-size:10px;color:#7BA7BB;margin:2px 0 8px;text-align:center;">方框颜色=运动类型 · 点击日期记录运动</div>`;
+      // ---- 记录按钮 ----
+      html += `<button class="btn-ghost" onclick="addFitnessExercise()" style="font-size:12px;width:100%;border:2px dashed #E0E0E0;padding:8px;border-radius:12px;margin-bottom:8px;">+ 记录运动</button>`;
+      // ---- 列表 ----
+      const sorted = [...list].sort((a,b) => b.date > a.date ? 1 : -1);
+      if (sorted.length === 0) { html += '<div class="empty-state">还没有运动记录，动起来吧 🏋️</div>'; }
+      else {
+        sorted.forEach(d => {
+          html += `<div class="fit-card">
+            <div class="fit-card-icon" style="background:#E8F5E9;">🏋️</div>
+            <div class="fit-card-info">
+              <div class="fit-card-title">${d.type || '运动'}</div>
+              <div class="fit-card-sub">${d.date} · ${d.duration || 0}分钟${d.note ? ' · ' + d.note + 'km' : ''}</div>
+            </div>
+            <button class="fit-card-del" onclick="deleteFitnessItem('exercise',${d.id})">✕</button>
+          </div>`;
+        });
+      }
+      document.getElementById('fitnessContent').innerHTML = html;
+    }
+    function quickAddExercise(dateStr) {
+      openModal('记录运动 - ' + dateStr, `
+        <label class="label">运动类型</label><select class="input" id="feType"><option>游泳</option><option>跑步</option><option>骑行</option><option>跳绳</option><option>帕梅拉</option><option>瑜伽</option><option>健身操</option><option>力量训练</option><option>散步</option><option>其他</option></select>
+        <label class="label">时长 (分钟)</label><input class="input" id="feDur" type="number" placeholder="如：30">
+        <label class="label">距离（千米）</label><input class="input" id="feNote" placeholder="如：5.2">
+        <label class="label">日期</label><input class="input" type="date" id="feDate" value="${dateStr}">
+      `, () => {
+        const dur = parseInt(document.getElementById('feDur').value) || 0;
+        if (dur <= 0) return;
+        data.fitness.exercise.push({ id: Date.now(), type: document.getElementById('feType').value, duration: dur, note: document.getElementById('feNote').value.trim(), date: document.getElementById('feDate').value });
+        saveData(); renderFitnessExercise();
+      });
+    }
+
+    function addFitnessExercise() {
+      openModal('记录运动', `
+        <label class="label">运动类型</label><select class="input" id="feType"><option>游泳</option><option>跑步</option><option>骑行</option><option>跳绳</option><option>帕梅拉</option><option>瑜伽</option><option>健身操</option><option>力量训练</option><option>散步</option><option>其他</option></select>
+        <label class="label">时长 (分钟)</label><input class="input" id="feDur" type="number" placeholder="如：30">
+        <label class="label">距离（千米）</label><input class="input" id="feNote" placeholder="如：5.2">
+        <label class="label">日期</label><input class="input" type="date" id="feDate" value="${fmtDate(new Date())}">
+      `, () => {
+        const dur = parseInt(document.getElementById('feDur').value) || 0;
+        if (dur <= 0) return;
+        data.fitness.exercise.push({ id: Date.now(), type: document.getElementById('feType').value, duration: dur, note: document.getElementById('feNote').value.trim(), date: document.getElementById('feDate').value });
+        saveData(); renderFitnessExercise();
+      });
+    }
+
+    function renderFitnessPeriod() {
+      const list = data.fitness.period || [];
+      const now = new Date();
+      const year = now.getFullYear(), month = now.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const startDow = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const todayStr = fmtDate(now);
+
+      // Predict next period (simple: 28-day cycle)
+      const starts = list.filter(p => p.type === 'start').sort((a,b) => a.date > b.date ? 1 : -1);
+      let predictStart = '', predictEnd = '', predictRange = '';
+      if (starts.length >= 2) {
+        const last2 = starts.slice(-2);
+        const cycle = (new Date(last2[1].date) - new Date(last2[0].date)) / 86400000;
+        const lastStart = new Date(starts[starts.length - 1].date);
+        predictStart = new Date(lastStart.getTime() + cycle * 86400000);
+        predictEnd = new Date(predictStart.getTime() + 5 * 86400000);
+        predictRange = fmtDate(predictStart) + ' ~ ' + fmtDate(predictEnd);
+      }
+
+      let html = '';
+      if (predictRange) {
+        html += `<div style="font-size:11px;color:#FF8FAB;text-align:center;margin-bottom:8px;">🔮 预测下次：${predictRange}</div>`;
+      }
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <button class="btn-ghost" onclick="changePeriodMonth(-1)" style="font-size:14px;padding:2px 8px;">◀</button>
+        <span style="font-size:13px;font-weight:700;color:#2C5F75;">${year}年${month+1}月</span>
+        <button class="btn-ghost" onclick="changePeriodMonth(1)" style="font-size:14px;padding:2px 8px;">▶</button>
+      </div>`;
+      html += `<div class="calendar-weekdays" style="grid-template-columns:repeat(7,1fr);display:grid;">`;
+      ['一','二','三','四','五','六','日'].forEach(d => { html += `<span>${d}</span>`; });
+      html += `</div>`;
+      html += `<div class="calendar-grid" style="grid-template-columns:repeat(7,1fr);display:grid;">`;
+      for (let i = 0; i < startDow; i++) html += `<div></div>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isPeriod = list.some(p => {
+          if (p.type !== 'start') return false;
+          const s = new Date(p.date);
+          const e = new Date(s.getTime() + 5 * 86400000);
+          const cur = new Date(dateStr);
+          return cur >= s && cur <= e;
+        });
+        const isToday = dateStr === todayStr;
+        const isPredicted = predictStart && dateStr >= fmtDate(predictStart) && dateStr <= predictEnd;
+        let cls = 'calendar-day';
+        if (isToday) cls += ' today';
+        if (isPeriod) cls += ' period';
+        if (isPredicted && !isPeriod) cls += ' predicted';
+        html += `<div class="${cls}" onclick="togglePeriodDay('${dateStr}')">${d}</div>`;
+      }
+      html += `</div>`;
+      html += `<div style="font-size:11px;color:#7BA7BB;margin-top:6px;text-align:center;">点击日期标记经期开始/结束</div>`;
+
+      // History
+      const periodHistory = [...list].filter(p => p.type === 'start').sort((a,b) => b.date > a.date ? 1 : -1);
+      if (periodHistory.length > 0) {
+        html += `<div style="margin-top:8px;font-size:12px;color:#7BA7BB;font-weight:600;">经期记录</div>`;
+        periodHistory.slice(0,6).forEach(p => {
+          html += `<div class="fit-card">
+            <div class="fit-card-icon" style="background:#FCE4EC;">🩸</div>
+            <div class="fit-card-info"><div class="fit-card-title">${p.date}</div><div class="fit-card-sub">经期开始</div></div>
+            <button class="fit-card-del" onclick="deleteFitnessItem('period',${p.id})">✕</button>
+          </div>`;
+        });
+      }
+      document.getElementById('fitnessContent').innerHTML = html;
+    }
+
+    function changePeriodMonth(delta) {
+      // The month is rendered based on now.getMonth() + offset
+      // We store offset in a variable
+      if (!window._periodMonthOffset) window._periodMonthOffset = 0;
+      window._periodMonthOffset += delta;
+      // Override render
+      renderFitnessPeriodWithOffset();
+    }
+
+    function renderFitnessPeriodWithOffset() {
+      const list = data.fitness.period || [];
+      const now = new Date();
+      now.setMonth(now.getMonth() + (window._periodMonthOffset || 0));
+      const year = now.getFullYear(), month = now.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const startDow = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const todayStr = fmtDate(new Date());
+
+      const starts = list.filter(p => p.type === 'start').sort((a,b) => a.date > b.date ? 1 : -1);
+      let predictStart = '', predictEnd = '', predictRange = '';
+      if (starts.length >= 2) {
+        const last2 = starts.slice(-2);
+        const cycle = (new Date(last2[1].date) - new Date(last2[0].date)) / 86400000;
+        const lastStart = new Date(starts[starts.length - 1].date);
+        predictStart = new Date(lastStart.getTime() + cycle * 86400000);
+        predictEnd = new Date(predictStart.getTime() + 5 * 86400000);
+        predictRange = fmtDate(predictStart) + ' ~ ' + fmtDate(predictEnd);
+      }
+
+      let html = '';
+      if (predictRange) {
+        html += `<div style="font-size:11px;color:#FF8FAB;text-align:center;margin-bottom:8px;">🔮 预测下次：${predictRange}</div>`;
+      }
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <button class="btn-ghost" onclick="changePeriodMonth(-1)" style="font-size:14px;padding:2px 8px;">◀</button>
+        <span style="font-size:13px;font-weight:700;color:#2C5F75;">${year}年${month+1}月</span>
+        <button class="btn-ghost" onclick="changePeriodMonth(1)" style="font-size:14px;padding:2px 8px;">▶</button>
+      </div>`;
+      html += `<div class="calendar-weekdays" style="grid-template-columns:repeat(7,1fr);display:grid;">`;
+      ['一','二','三','四','五','六','日'].forEach(d => { html += `<span>${d}</span>`; });
+      html += `</div>`;
+      html += `<div class="calendar-grid" style="grid-template-columns:repeat(7,1fr);display:grid;">`;
+      for (let i = 0; i < startDow; i++) html += `<div></div>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isPeriod = list.some(p => {
+          if (p.type !== 'start') return false;
+          const s = new Date(p.date);
+          const e = new Date(s.getTime() + 5 * 86400000);
+          const cur = new Date(dateStr);
+          return cur >= s && cur <= e;
+        });
+        const isToday = dateStr === todayStr;
+        let cls = 'calendar-day';
+        if (isToday) cls += ' today';
+        if (isPeriod) cls += ' period';
+        html += `<div class="${cls}" onclick="togglePeriodDay('${dateStr}')">${d}</div>`;
+      }
+      html += `</div>`;
+      html += `<div style="font-size:11px;color:#7BA7BB;margin-top:6px;text-align:center;">点击日期标记经期开始/结束</div>`;
+      const periodHistory = [...list].filter(p => p.type === 'start').sort((a,b) => b.date > a.date ? 1 : -1);
+      if (periodHistory.length > 0) {
+        html += `<div style="margin-top:8px;font-size:12px;color:#7BA7BB;font-weight:600;">经期记录</div>`;
+        periodHistory.slice(0,6).forEach(p => {
+          html += `<div class="fit-card">
+            <div class="fit-card-icon" style="background:#FCE4EC;">🩸</div>
+            <div class="fit-card-info"><div class="fit-card-title">${p.date}</div><div class="fit-card-sub">经期开始</div></div>
+            <button class="fit-card-del" onclick="deleteFitnessItem('period',${p.id})">✕</button>
+          </div>`;
+        });
+      }
+      document.getElementById('fitnessContent').innerHTML = html;
+    }
+
+    function togglePeriodDay(dateStr) {
+      const list = data.fitness.period || [];
+      const existStart = list.find(p => p.date === dateStr && p.type === 'start');
+      if (existStart) {
+        // Remove this start marker
+        data.fitness.period = list.filter(p => !(p.date === dateStr && p.type === 'start'));
+      } else {
+        data.fitness.period.push({ id: Date.now(), date: dateStr, type: 'start' });
+      }
+      saveData(); renderFitnessPeriodWithOffset();
+    }
+
+    function deleteFitnessItem(cat, id) {
+      data.fitness[cat] = (data.fitness[cat] || []).filter(x => x.id !== id);
+      saveData();
+      if (fitnessTab === 'period') renderFitnessPeriodWithOffset();
+      else renderFitness();
+    }
+
+    // ========== 工具函数 ==========
+    function fmtDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function offsetDate(days) { const d = new Date(); d.setDate(d.getDate() - days); return fmtDate(d); }
+    function offsetMonth(months) { const d = new Date(); d.setMonth(d.getMonth() - months); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+    function isSameWeek(d1, d2) {
+      const a = new Date(d1), b = new Date(d2);
+      const aw = getWeekStart(a), bw = getWeekStart(b);
+      return aw.getTime() === bw.getTime();
+    }
+    function getWeekStart(d) { const day = d.getDay() || 7; const s = new Date(d); s.setDate(d.getDate() - day + 1); s.setHours(0,0,0,0); return s; }
+    function isSameWeekOffset(dateStr, weeksAgo) {
+      const d = new Date(dateStr); const now = new Date();
+      const ws = getWeekStart(now); ws.setDate(ws.getDate() - weeksAgo*7);
+      const we = new Date(ws); we.setDate(ws.getDate() + 6);
+      const t = new Date(d); t.setHours(0,0,0,0);
+      return t >= ws && t <= we;
+    }
+    function mascotClick() { alert('朱迪说：加油熊高级！你一定可以上岸的！🐰✨'); }
+  </script>
+</body>
+</html>
